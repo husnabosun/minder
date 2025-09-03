@@ -1,0 +1,312 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.main-div {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  height: 100vh;
+}
+
+
+.header {
+  position:static;
+  margin-top: 1.5rem;
+  margin-left: 1.5rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  z-index: 1000;
+  background-color: white;
+
+}
+.button-div{
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  z-index: 1001;
+}
+.search-button{
+  height: 50px;
+  width: 50px;
+  text-align: center;
+  line-height: 50px;
+  border-radius: 50%;
+  font-size: 20px;
+  color: black;
+  cursor: pointer;
+}
+h1 {
+  --s: 0.01em;
+  /* the thickness of the line */
+  --c: #76c182;
+  /* the color */
+
+  color: #0000;
+  padding-bottom: var(--s);
+  background:
+    linear-gradient(90deg, var(--c) 50%, #000 0) calc(100% - var(--_p, 0%))/200% 100%,
+    linear-gradient(var(--c) 0 0) 0% 100%/var(--_p, 0%) var(--s) no-repeat;
+  -webkit-background-clip: text, padding-box;
+  background-clip: text, padding-box;
+  transition: 0.5s;
+  width: 600px;
+}
+
+h1:hover {
+  --_p: 100%
+}
+
+h1{
+  font-family: Josefin Sans, sans-serif;
+  font-size: 5rem;
+  cursor: pointer;
+}
+
+#map {
+  overflow: visible;
+  margin-top: 0.01px;
+}
+
+.boxes {
+  height: 100%;
+  /* Or a specific pixel value, e.g., 500px */
+  /* Adds a vertical scrollbar if content overflows */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Lato', sans-serif;
+  font-family: 'Oswald', sans-serif;
+}
+
+.wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  /*background: linear-gradient(-135deg, #c850c0, #4158d0);*/
+  /* background: linear-gradient(375deg, #1cc7d0, #2ede98); */
+  /* background: linear-gradient(-45deg, #e3eefe 0%, #efddfb 100%);*/
+  /* clip-path: circle(25px at calc(0% + 45px) 45px); */
+  background: #000;
+  clip-path: circle(25px at calc(100% - 45px) 45px);
+  transition: all 0.3s ease-in-out;
+  z-index: 9999;
+}
+
+#active:checked + .button-div .wrapper {
+  clip-path: circle(75%);
+}
+
+#active {
+  display: none;
+}
+
+.fa-solid {
+  font-size: 20px;
+}
+
+.menu-btn {
+  position: fixed;
+  right: 20px;
+  /* left: 20px; */
+  top: 20px;
+  height: 50px;
+  width: 50px;
+  text-align: center;
+  line-height: 50px;
+  border-radius: 50%;
+  font-size: 20px;
+  color: black;
+  cursor: pointer;
+  /*background: linear-gradient(-135deg, #c850c0, #4158d0);*/
+  /* background: linear-gradient(375deg, #1cc7d0, #2ede98); */
+  /* background: linear-gradient(-45deg, #e3eefe 0%, #efddfb 100%); */
+  background: black;
+  transition: background 0.3s ease, transform 0.3s ease;
+  /*transition: all 0.3s ease-in-out; has changed because a frame is seen on transition*/
+  /*all → tüm stil değişiklikleri (color, background, transform, opacity vs.)
+   0.3s boyunca animasyonla uygulanır*/
+  z-index: 99999;
+}
+
+#active:checked~.menu-btn {
+  background-color: white;
+  color: transparent;
+}
+
+#active:checked~.menu-btn i:before {
+  content: "\f00d";
+}
+
+.wrapper ul {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  list-style: none;
+  text-align: center;
+}
+
+.wrapper ul li {
+  margin: 15px 0;
+}
+
+.wrapper ul li a {
+  color: none;
+  text-decoration: none;
+  font-size: 30px;
+  font-weight: 500;
+  padding: 5px 30px;
+  color: #fff;
+  border-radius: 50px;
+  background: #000;
+  position: relative;
+  line-height: 50px;
+  transition: all 0.3s ease;
+}
+
+.wrapper ul li a:after {
+  position: absolute;
+  content: "";
+  background: #fff;
+  background: linear-gradient(#007d00, #1d493a, #4b9844);
+  /*background: linear-gradient(375deg, #1cc7d0, #2ede98);*/
+  width: 104%;
+  height: 110%;
+  left: -2%;
+  top: -5%;
+  /* if the font is 'Oswald'*/
+  border-radius: 50px;
+  transform: scaleY(0);
+  z-index: -1;
+  animation: rotate 1.5s linear infinite;
+  transition: transform 0.3s ease;
+}
+
+.wrapper ul li a:hover:after {
+  transform: scaleY(1);
+}
+
+.wrapper ul li a:hover {
+  color: #fff;
+}
+
+input[type="checkbox"] {
+  display: none;
+}
+
+select option {
+  padding: 16px;
+  width: 100px;
+  font-size: 16px;
+  font-family: Josefin Sans, sans-herif ;
+  background-color: white;
+  color: black;
+}
+
+select {
+  width: 250px;          /* genişlik */
+  padding: 10px;         /* iç boşluk */
+  border: 2px solid #4CAF50;
+  border-radius: 6px;    /* köşeleri yuvarlama */
+  background-color: #f9f9f9;
+  font-size: 16px;
+  font-family: Josefin Sans, sans-herif ;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+}
+@keyframes rotate {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+* {box-sizing:border-box}
+
+/* Slideshow container */
+.slideshow-container {
+  max-width: 400px;
+  position: relative;
+  margin: auto;
+}
+
+/* Hide the images by default */
+.mySlides {
+  display: none;
+}
+
+/* Next & previous buttons */
+.prev, .next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: auto;
+  margin-top: -22px;
+  padding: 16px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+  user-select: none;
+}
+
+/* Position the "next button" to the right */
+.next {
+  right: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+/* On hover, add a black background color with a little bit see-through */
+.prev:hover, .next:hover {
+  background-color: rgba(0,0,0,0.8);
+}
+
+/* Caption text */
+.text {
+  color: #f2f2f2;
+  font-size: 15px;
+  padding: 8px 12px;
+  position: absolute;
+  bottom: 8px;
+  width: 100%;
+  text-align: center;
+}
+
+
+/* The dots/bullets/indicators */
+.dot {
+  cursor: pointer;
+  height: 15px;
+  width: 15px;
+  margin: 0 2px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.6s ease;
+}
+
+.active, .dot:hover {
+  background-color: #717171;
+}
+
+/* Fading animation */
+.fade {
+  animation-name: fade;
+  animation-duration: 1.5s;
+}
+
+@keyframes fade {
+  from {opacity: .4}
+  to {opacity: 1}
+}
