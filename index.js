@@ -2,6 +2,35 @@
 // prompted by your browser. If you see the error "The Geolocation service
 // failed.", it means you probably did not give permission for the browser to
 // locate you.
+window.addEventListener('load', () => {
+    const splash = document.getElementById('splash-screen');
+    const splashSloganText = document.querySelector(".slogan-splash-text")
+    const text = splashSloganText.textContent; // orijinal metin
+    splashSloganText.textContent = "";
+    text.split('').forEach(char => {
+        if (char === ' ') {
+            splashSloganText.appendChild(document.createTextNode(' '));
+            return;
+        }
+        else {
+            const span = document.createElement('span');
+            span.style.color = '#76c182';
+            span.textContent = char;
+            splashSloganText.appendChild(span);
+        }
+
+    });
+    setTimeout(() => {
+        if (splash) {
+            splash.style.opacity = '0'; // opaklığı azalt → fade out
+            setTimeout(() => {
+                splash.style.display = 'none'; // tamamen gizle
+            }, 1000); // CSS transition süresiyle aynı olmalı
+        }
+    }, 1000); // 3 saniye sonra fade başlasın
+});
+
+
 let map, infoWindowCurr, infoWindow;
 
 function initMap() {
@@ -59,95 +88,176 @@ function initMap() {
 
                     map.panTo(pos);
                     map.setZoom(15);
+                },
+            );
 
-                    searchButton.addEventListener("click", () => {
-                        var request = {
-                            location: pos,
-                            radius: parseInt(getValue()),
-                            type: 'mosque',
-                            keyword: 'cami',
-                        };
-                        var service = new google.maps.places.PlacesService(map);
-                        let distanceDict = {};
 
-                        let slideContainer = document.querySelector(".slide-container");
-                        let currentSlide = document.createElement("div");
-                        currentSlide.className = "mySlides fade";
-                        let count = 0;
-                        const maxPerSlide = 6;
+        } else {
+            // Browser doesn't support Geolocation
+            handleLocationError(false, infoWindow, map.getCenter());
+        }
 
-                        const rightDiv = document.querySelector(".boxes");
-                        const mySlides = document.querySelector(".mySlides")
+    });
 
-                                            service.nearbySearch(request, (results, status) => {
+    searchButton.addEventListener("click", () => {
+        //clearMarkers();
+        //clearResults();
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    };
+                    currPos = new google.maps.LatLng(pos.lat, pos.lng);
+
+                    var request = {
+                        location: pos,
+                        radius: parseInt(getValue()),
+                        type: 'mosque',
+                        keyword: 'cami',
+                    };
+
+                    //infoWindowCurr.setPosition(pos)
+                    infoWindowCurr.setContent("Current Location")
+                    const curr_marker = new google.maps.Marker({
+                        position: pos,
+                        map: map,
+                        title: "Current Location",
+                        icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                    });
+
+                    curr_marker.addListener("click", () => {
+                        infoWindowCurr.open(map, curr_marker);
+                    });
+
+                    map.panTo(pos);
+                    map.setZoom(15);
+
+
+                    var service = new google.maps.places.PlacesService(map);
+                    let distanceDict = {};
+
+                    let slideContainer = document.querySelector(".slide-container");
+                    slideContainer.style.position = "relative"
+                    slideContainer.style.marginBottom = "2rem"
+
+                    const radius = parseInt(getValue());
+                    service.nearbySearch(request, (results, status) => {
                         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                            let currentSlide = document.createElement("div");
+                            currentSlide.className = "mySlides fade";
+                            let count = 0;
+                            const maxPerSlide = 6;
+
+                            // her yerin mesafesini hesapla
+                            const filtered = results.map(place => {
+                                const placePos = place.geometry.location;
+                                const distance = google.maps.geometry.spherical.computeDistanceBetween(currPos, placePos);
+                                return { place, distance };
+                            })
+
+                                .filter(item => item.distance <= radius)
+
+
+                                .sort((a, b) => a.distance - b.distance);
 
                             //const mySlides = document.querySelector(".mySlides")
-                            const firstRow = document.createElement("div");
+                            let firstRow = document.createElement("div");
                             firstRow.className = "first-row";
                             firstRow.style.display = "flex";
                             firstRow.style.flexWrap = "wrap";
                             firstRow.style.gap = "20px";
                             firstRow.style.alignItems = "center";
                             firstRow.style.justifyContent = "center";
+                            currentSlide.appendChild(firstRow)
+
+
+                            for (var i = 0; i < filtered.length; i++) {
+                                if (count >= maxPerSlide) {
+                                    slideContainer.appendChild(currentSlide);
+                                    currentSlide = document.createElement("div");
+                                    currentSlide.className = "mySlides fade";
+
+                                    firstRow = document.createElement("div");
+                                    firstRow.className = "first-row";
+                                    firstRow.style.display = "flex";
+                                    firstRow.style.flexWrap = "wrap";
+                                    firstRow.style.gap = "20px";
+                                    firstRow.style.alignItems = "center";
+                                    firstRow.style.justifyContent = "center";
+                                    currentSlide.appendChild(firstRow)
+                                    count = 0
+                                }
 
 
 
-                            for (var i = 0; i < results.length; i++) {
-                                const res = createMarker(results[i], currPos);
+                                const res = createMarker(filtered[i].place, currPos);
+                                console.log(res)
 
                                 const contentDiv = document.createElement("div");
                                 contentDiv.className = "content-div";
-                                currentSlide.appendChild(firstRow);
                                 firstRow.appendChild(contentDiv);
 
                                 const imgDiv = document.createElement("div");
                                 imgDiv.className = "img-div";
                                 imgDiv.style.alignSelf = "flex-start"
                                 imgDiv.style.marginLeft = "30px";
-                                imgDiv.style.marginTop = "10px"
+                                imgDiv.style.marginTop = "1rem"
+
                                 contentDiv.appendChild(imgDiv);
-                                count++;
+
 
 
 
                                 const img = document.createElement("i");
                                 img.className = "fa-solid fa-mosque";
-                                img.style.fontSize = "50px";
+                                img.style.fontSize = "25px";
                                 imgDiv.appendChild(img)
 
                                 contentDiv.style.backgroundColor = "#fffffc";
-                                contentDiv.style.width = "300px";
-                                contentDiv.style.height = "150px"
+
+                                contentDiv.style.width = "100%";          // kutu ebeveyne göre esnek olsun
+                                contentDiv.style.maxWidth = "300px";
+                                contentDiv.style.height = "auto";      // içerik kadar yükseklik
+                                contentDiv.style.minHeight = "150px";
                                 contentDiv.style.borderColor = "none";
                                 contentDiv.style.borderRadius = "2rem";
                                 contentDiv.style.boxShadow = "-20px 20px 40px hsl(0 0 0 / .25) ";
                                 contentDiv.style.display = "flex";
                                 contentDiv.style.flexDirection = "column";
                                 contentDiv.classList.add("hover-effect");
-                                imgDiv.addEventListener("click", () => {
-                                    window.open(link, "_blank");
-                                })
 
                                 const infoWindowPlace = res[2]
                                 const marker = res[3];
                                 contentDiv.addEventListener("click", () => {
                                     infoWindowPlace.setContent(`${res[0].name || ""} <br> Distance: ${(res[1] / 1000).toFixed(3)} km`);
                                     infoWindowPlace.open(map, marker);
+                                    window.scrollTo({
+                                        top: 100,
+                                        behavior: "smooth"
+                                    });
                                 });
 
                                 const headerDiv = document.createElement("div");
+                                headerDiv.className = "header-div"
+                                headerDiv.style.margin = "0"
+                                headerDiv.style.padding = "0"
+                                headerDiv.style.display = "inline-block"
                                 const header = document.createElement("p");
                                 const distance = document.createElement("p")
                                 header.className = "header-text";
                                 distance.className = "distance-text"
                                 header.textContent = res[0].name;
                                 distance.textContent = `${(res[1] / 1000).toFixed(3)} km`;
+                                header.style.fontSize = "20px"
+                                distance.style.fontSize = "20px"
                                 header.style.fontFamily = "Josefin Sans";
                                 header.style.overflowWrap = "break-word";
                                 distance.style.fontFamily = "Josefin Sans";
                                 distance.style.overflowWrap = "break-word";
-                                headerDiv.style.width = "300px";
+                                headerDiv.style.width = "100%";          // kutu ebeveyne göre esnek olsun
+                                headerDiv.style.maxWidth = "300px";
                                 headerDiv.style.display = "flex";
                                 headerDiv.style.flexDirection = "column"
 
@@ -163,42 +273,73 @@ function initMap() {
                                 contentDiv.appendChild(headerDiv);
 
                                 distanceDict[res[0].name] = res[1];
-
-                                if (count >= maxPerSlide) {
-                                    slideContainer.appendChild(currentSlide);
-                                    currentSlide = document.createElement("div");
-                                    currentSlide.className = "mySlides fade";
-                                    count = 0;
-                                }
-
+                                count++;
 
                             }
                             if (count > 0) {
                                 slideContainer.appendChild(currentSlide);
                             }
                         }
-                        
+
+                        if (document.querySelectorAll(".mySlides").length > 1) {
+                            const controlsDiv = document.createElement("div");
+                            controlsDiv.className = "controls";
+                            controlsDiv.style.display = "flex";
+                            controlsDiv.style.flexDirection = "row"
+                            controlsDiv.style.alignItems = "space-between";
+                            controlsDiv.style.alignItems = "space-between";
+                            controlsDiv.style.gap = "1000px"
+                            controlsDiv.style
+
+                            const prevBtn = document.createElement("a");
+                            prevBtn.className = "prev";
+                            prevBtn.style.color = "black";
+                            prevBtn.innerHTML = "&#10094;";
+                            prevBtn.addEventListener("click", () => plusSlides(-1));
+
+                            // Next butonu
+                            const nextBtn = document.createElement("a");
+                            nextBtn.className = "next";
+                            nextBtn.style.color = "black";
+                            nextBtn.innerHTML = "&#10095;";
+                            nextBtn.addEventListener("click", () => plusSlides(1));
+
+                            slideContainer.appendChild(prevBtn);
+                            slideContainer.appendChild(nextBtn);
+
+                        }
+
+
+                        if (document.querySelectorAll(".mySlides").length > 0) {
+                            currentSlideShow(1);
+                        }
+
+                        const mapDiv = document.querySelector(".map-div")
+                        window.scrollTo({
+                            // the distance between the top and map + 100px
+                            top: slideContainer.offsetTop + (slideContainer.offsetWidth * 0.002),
+                            behavior: "smooth"
+                        });
+
 
                     });
-
-                    })
-
-
-
-
-                },
-
+                }
             );
 
 
-        } else {
-            // Browser doesn't support Geolocation
-            handleLocationError(false, infoWindow, map.getCenter());
-        }
+        };
 
-    });
+    })
 
 
+}
+function clearMarkers() {
+    marker.forEach(marker => marker.setMap(null));
+    markers = [];
+}
+function clearResults() {
+    const slideContainer = document.querySelector(".slide-container");
+    slideContainer.innerHTML = "";
 }
 
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
@@ -222,9 +363,10 @@ function createMarker(place, currPos) {
     const infoWindowPlace = new google.maps.InfoWindow();
     const placePos = place.geometry.location
     const distanceBetween = getDistance(currPos, placePos)
-
+    const mapsLink = `https://www.google.com/maps/search/?api=1&query=${placePos.lat()},${placePos.lng()}`;
+    
     google.maps.event.addListener(marker, "click", () => {
-        infoWindowPlace.setContent(`${place.name || ""} <br> Distance: ${(distanceBetween / 1000).toFixed(3)} km`);
+        infoWindowPlace.setContent(`${place.name || ""} <br> Distance: ${(distanceBetween / 1000).toFixed(3)} km <br> <a href="${mapsLink}" target="_blank">See on Maps</a>`);
         infoWindowPlace.open(map, marker);
     });
     return [place, distanceBetween, infoWindowPlace, marker]
@@ -256,14 +398,13 @@ function plusSlides(n) {
 }
 
 // Thumbnail image controls
-function currentSlide(n) {
+function currentSlideShow(n) {
     showSlides(slideIndex = n);
 }
 
 function showSlides(n) {
     let i;
     let slides = document.getElementsByClassName("mySlides");
-    let dots = document.getElementsByClassName("dot");
     //turns first slide when go further from last slide
     if (n > slides.length) { slideIndex = 1 }
     // goes last slide when go previous page from 1st page
@@ -271,12 +412,8 @@ function showSlides(n) {
     for (i = 0; i < slides.length; i++) {
         slides[i].style.display = "none";
     }
-    // current dot is seen
-    for (i = 0; i < dots.length; i++) {
-        dots[i].className = dots[i].className.replace(" active", "");
-    }
+
     slides[slideIndex - 1].style.display = "block";
-    dots[slideIndex - 1].className += " active";
 }
 window.initMap = initMap;
 
