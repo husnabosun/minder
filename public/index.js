@@ -99,7 +99,7 @@ function initMap() {
                     };
                     currPos = new google.maps.LatLng(pos.lat, pos.lng);
 
-                    const radius = parseInt(getValue());
+                    const radius = parseInt(getValue()) || 1000;
 
                     fetch(`/api/nearby-mosques?lat=${pos.lat}&lng=${pos.lng}&radius=${radius}`)
                         .then(res => res.json())
