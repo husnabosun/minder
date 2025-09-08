@@ -131,7 +131,7 @@ function initMap() {
                             let count = 0;
                             const maxPerSlide = 6;
 
-                            const filtered = results.map(place => {
+                            const filtered = data.results.map(place => {
                                 const placePos = place.geometry.location;
                                 const distance = google.maps.geometry.spherical.computeDistanceBetween(currPos, placePos);
                                 return { place, distance };

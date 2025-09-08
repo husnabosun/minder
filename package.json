@@ -1,8 +1,8 @@
 {
-  "name": "mosque-finder",
+  "name": "minder",
   "version": "1.0.0",
   "description": "Nearby mosque finder app",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "vercel dev"
   },
