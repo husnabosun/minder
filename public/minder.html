@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Mosque Finder</title>
+    <link rel="stylesheet" href="/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bitcount&family=Edu+NSW+ACT+Cursive:wght@400..700&family=Intel+One+Mono:ital,wght@0,300..700;1,300..700&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Libertinus+Sans:ital,wght@0,400;0,700;1,400&family=Nata+Sans:wght@100..900&family=Quicksand:wght@300..700&display=swap"
+        rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <div id="splash-screen" class="content">
+    <div class="header-splash">
+        <p class="header-splash-text">Minder</p>
+        <div class="logo-splash">
+            <i class="fa-solid fa-mosque"></i>
+        </div>
+    </div>
+
+    <div class="slogan-splash">
+        <p class="slogan-splash-text">
+            "your guide to nearby mosques"
+        </p>
+    </div>
+</div>
+    <div class="header">
+        <div class="text-div">
+            <p class="header-text">Minder</p>
+        </div>
+        <div class="slogan-div">
+            <div class="sloganText-div">
+                <p class="header-text new">"your guide to nearby mosques"</p>
+            </div>
+
+        </div>
+    </div>
+    <div class="select-row">
+        <div class="select-div">
+            <select name="distances" id="distances">
+                <option value="" disabled selected hidden>Choose a distance</option>
+                <option value="200">200 m</option>
+                <option value="500">500 m</option>
+                <option value="1000">1000 m</option>
+                <option value="1500">1500 m</option>
+            </select>
+
+        </div>
+        <div class="search-div">
+            <button class="search-button"="getValue()"><i class="fa-solid fa-magnifying-glass-location"></i></button>
+        </div>
+    </div>
+    <div class="main-div">
+
+        <div class="map-div">
+            <div id="map"></div>
+        </div>
+
+
+
+        <div class="boxes">
+            <div class="slide-container">
+
+            </div>
+        </div>
+    </div>
+    <script src= "/index.js"></script>
+    <script async
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCOaW3PiJuULWf-bRgonYeDr0dlFNrs2_M&loading=async&libraries=places,geometry&callback=initMap">
+        </script>
+</body>

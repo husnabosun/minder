@@ -74,9 +74,8 @@ p {
   font-style: italic;
   display: inline-block;
     text-align: center;
-  white-space: nowrap;            /* flex ile spanları yatay hizala */
-        /* dikeyde ortala */
-   
+  white-space: nowrap;  
+
 }
 
 .logo-splash i {
@@ -86,10 +85,8 @@ p {
 .logo-splash {
   display: flex;
   align-items: center;
-  /* dikey ortalama */
   justify-content: center;
-  /* yatay ortalama */
-  /* gerekiyorsa */
+
 }
 
 @media (max-width: 450px) {
@@ -111,10 +108,7 @@ p {
   .logo-splash {
     display: flex;
     align-items: center;
-    /* dikey ortalama */
     justify-content: center;
-    /* yatay ortalama */
-    /* gerekiyorsa */
   }
 }
 
@@ -125,7 +119,6 @@ p {
   width: 100%;
   height: 100%;
   opacity: 1;
-  /* başlangıç görünür */
   transition: opacity 1s ease;
   z-index: 999999;
 }
@@ -182,7 +175,6 @@ p {
 
 @media (max-width: 640px) {
   .header {
-    /* veya istediğin yükseklik */
     display: flex;
     flex-direction: column-reverse;
     justify-content: center;
@@ -244,12 +236,9 @@ select option {
 
 select {
   width: 76vw;
-  ;
   padding: 10px;
-  /* iç boşluk */
   border: 2px solid #4CAF50;
   border-radius: 6px;
-  /* köşeleri yuvarlama */
   background-color: #f9f9f9;
   font-size: 16px;
   font-family: Josefin Sans, sans-serif;
@@ -301,12 +290,10 @@ select {
   margin: auto;
 }
 
-/* Hide the images by default */
 .mySlides {
   display: none;
 }
 
-/* Next & previous buttons */
 .prev,
 .next {
   cursor: pointer;
@@ -323,19 +310,16 @@ select {
   user-select: none;
 }
 
-/* Position the "next button" to the right */
 .next {
   right: 0;
   border-radius: 3px 0 0 3px;
 }
 
-/* On hover, add a black background color with a little bit see-through */
 .prev:hover,
 .next:hover {
   background-color: rgb(180, 171, 171);
 }
 
-/* Fading animation */
 .fade {
   animation-name: fade;
   animation-duration: 1.5s;
@@ -356,11 +340,9 @@ select {
   color: black;
   animation: colorFade 2s infinite;
   display: inline;
-      display: inline-block; /* inline-block yaparak hizayı sabitle */
-    line-height: 1;
+      display: inline-block; 
 }
 
-/* renk geçişi animasyonu */
 @keyframes colorFade {
   0%   { color: black; opacity: 0.6; }
   50%  { color: #76c182; opacity: 1; }

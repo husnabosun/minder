@@ -1,11 +1,8 @@
-// Note: This example requires that you consent to location sharing when
-// prompted by your browser. If you see the error "The Geolocation service
-// failed.", it means you probably did not give permission for the browser to
-// locate you.
+let markerList = [];
 window.addEventListener('load', () => {
     const splash = document.getElementById('splash-screen');
     const splashSloganText = document.querySelector(".slogan-splash-text")
-    const text = splashSloganText.textContent; // orijinal metin
+    const text = splashSloganText.textContent;
     splashSloganText.textContent = "";
     text.split('').forEach(char => {
         if (char === ' ') {
@@ -18,18 +15,16 @@ window.addEventListener('load', () => {
             span.textContent = char;
             splashSloganText.appendChild(span);
         }
-
     });
     setTimeout(() => {
         if (splash) {
-            splash.style.opacity = '0'; // opaklığı azalt → fade out
+            splash.style.opacity = '0';
             setTimeout(() => {
-                splash.style.display = 'none'; // tamamen gizle
-            }, 1000); // CSS transition süresiyle aynı olmalı
+                splash.style.display = 'none';
+            }, 1000);
         }
-    }, 1000); // 3 saniye sonra fade başlasın
+    }, 1000);
 });
-
 
 let map, infoWindowCurr, infoWindow;
 
@@ -42,7 +37,6 @@ function initMap() {
     infoWindowCurr = new google.maps.InfoWindow();
 
     const locationButton = document.createElement("button");
-
     const searchIcon = document.createElement("i");
     searchIcon.classList.add("fa-solid", "fa-location-dot")
     searchIcon.style.color = "#ee1b1b";
@@ -62,7 +56,6 @@ function initMap() {
 
     map.controls[google.maps.ControlPosition.TOP_CENTER].push(locationButton);
     locationButton.addEventListener("click", () => {
-        // Try HTML5 geolocation.
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -73,7 +66,6 @@ function initMap() {
 
                     currPos = new google.maps.LatLng(pos.lat, pos.lng);
 
-                    //infoWindowCurr.setPosition(pos)
                     infoWindowCurr.setContent("Current Location")
                     const curr_marker = new google.maps.Marker({
                         position: pos,
@@ -90,18 +82,14 @@ function initMap() {
                     map.setZoom(15);
                 },
             );
-
-
         } else {
-            // Browser doesn't support Geolocation
             handleLocationError(false, infoWindow, map.getCenter());
         }
-
     });
 
     searchButton.addEventListener("click", () => {
-        //clearMarkers();
-        //clearResults();
+        clearMarkers();
+        clearResults();
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -111,58 +99,46 @@ function initMap() {
                     };
                     currPos = new google.maps.LatLng(pos.lat, pos.lng);
 
-                    var request = {
-                        location: pos,
-                        radius: parseInt(getValue()),
-                        type: 'mosque',
-                        keyword: 'cami',
-                    };
-
-                    //infoWindowCurr.setPosition(pos)
-                    infoWindowCurr.setContent("Current Location")
-                    const curr_marker = new google.maps.Marker({
-                        position: pos,
-                        map: map,
-                        title: "Current Location",
-                        icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-                    });
-
-                    curr_marker.addListener("click", () => {
-                        infoWindowCurr.open(map, curr_marker);
-                    });
-
-                    map.panTo(pos);
-                    map.setZoom(15);
-
-
-                    var service = new google.maps.places.PlacesService(map);
-                    let distanceDict = {};
-
-                    let slideContainer = document.querySelector(".slide-container");
-                    slideContainer.style.position = "relative"
-                    slideContainer.style.marginBottom = "2rem"
-
                     const radius = parseInt(getValue());
-                    service.nearbySearch(request, (results, status) => {
-                        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+
+                    fetch(`/api/nearby-mosques?lat=${pos.lat}&lng=${pos.lng}&radius=${radius}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            infoWindowCurr.setContent("Current Location")
+                            const curr_marker = new google.maps.Marker({
+                                position: pos,
+                                map: map,
+                                title: "Current Location",
+                                icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                            });
+                            curr_marker.addListener("click", () => {
+                                infoWindowCurr.open(map, curr_marker);
+                            });
+                            map.panTo(pos);
+                            map.setZoom(15);
+
+
+                            let distanceDict = {};
+
+                            let slideContainer = document.querySelector(".slide-container");
+                            slideContainer.style.position = "relative"
+                            slideContainer.style.marginBottom = "2rem"
+
+                    
+                            
                             let currentSlide = document.createElement("div");
                             currentSlide.className = "mySlides fade";
                             let count = 0;
                             const maxPerSlide = 6;
 
-                            // her yerin mesafesini hesapla
                             const filtered = results.map(place => {
                                 const placePos = place.geometry.location;
                                 const distance = google.maps.geometry.spherical.computeDistanceBetween(currPos, placePos);
                                 return { place, distance };
                             })
-
                                 .filter(item => item.distance <= radius)
-
-
                                 .sort((a, b) => a.distance - b.distance);
 
-                            //const mySlides = document.querySelector(".mySlides")
                             let firstRow = document.createElement("div");
                             firstRow.className = "first-row";
                             firstRow.style.display = "flex";
@@ -172,8 +148,7 @@ function initMap() {
                             firstRow.style.justifyContent = "center";
                             currentSlide.appendChild(firstRow)
 
-
-                            for (var i = 0; i < filtered.length; i++) {
+                            for (let i = 0; i < filtered.length; i++) {
                                 if (count >= maxPerSlide) {
                                     slideContainer.appendChild(currentSlide);
                                     currentSlide = document.createElement("div");
@@ -190,10 +165,7 @@ function initMap() {
                                     count = 0
                                 }
 
-
-
                                 const res = createMarker(filtered[i].place, currPos);
-                                console.log(res)
 
                                 const contentDiv = document.createElement("div");
                                 contentDiv.className = "content-div";
@@ -204,11 +176,7 @@ function initMap() {
                                 imgDiv.style.alignSelf = "flex-start"
                                 imgDiv.style.marginLeft = "30px";
                                 imgDiv.style.marginTop = "1rem"
-
                                 contentDiv.appendChild(imgDiv);
-
-
-
 
                                 const img = document.createElement("i");
                                 img.className = "fa-solid fa-mosque";
@@ -216,10 +184,9 @@ function initMap() {
                                 imgDiv.appendChild(img)
 
                                 contentDiv.style.backgroundColor = "#fffffc";
-
-                                contentDiv.style.width = "100%";          // kutu ebeveyne göre esnek olsun
+                                contentDiv.style.width = "100%";
                                 contentDiv.style.maxWidth = "300px";
-                                contentDiv.style.height = "auto";      // içerik kadar yükseklik
+                                contentDiv.style.height = "auto";
                                 contentDiv.style.minHeight = "150px";
                                 contentDiv.style.borderColor = "none";
                                 contentDiv.style.borderRadius = "2rem";
@@ -230,8 +197,10 @@ function initMap() {
 
                                 const infoWindowPlace = res[2]
                                 const marker = res[3];
+                                markerList.push(marker);
+
                                 contentDiv.addEventListener("click", () => {
-                                    infoWindowPlace.setContent(`${res[0].name || ""} <br> Distance: ${(res[1] / 1000).toFixed(3)} km`);
+                                    infoWindowPlace.setContent(`${res[0].name || ""} <br> Distance: ${(res[1] / 1000).toFixed(3)} km<br> <a href="${res[4]}" target="_blank">See on Maps</a>`);
                                     infoWindowPlace.open(map, marker);
                                     window.scrollTo({
                                         top: 100,
@@ -256,7 +225,7 @@ function initMap() {
                                 header.style.overflowWrap = "break-word";
                                 distance.style.fontFamily = "Josefin Sans";
                                 distance.style.overflowWrap = "break-word";
-                                headerDiv.style.width = "100%";          // kutu ebeveyne göre esnek olsun
+                                headerDiv.style.width = "100%";
                                 headerDiv.style.maxWidth = "300px";
                                 headerDiv.style.display = "flex";
                                 headerDiv.style.flexDirection = "column"
@@ -274,12 +243,11 @@ function initMap() {
 
                                 distanceDict[res[0].name] = res[1];
                                 count++;
-
                             }
                             if (count > 0) {
                                 slideContainer.appendChild(currentSlide);
                             }
-                        }
+                        
 
                         if (document.querySelectorAll(".mySlides").length > 1) {
                             const controlsDiv = document.createElement("div");
@@ -289,7 +257,6 @@ function initMap() {
                             controlsDiv.style.alignItems = "space-between";
                             controlsDiv.style.alignItems = "space-between";
                             controlsDiv.style.gap = "1000px"
-                            controlsDiv.style
 
                             const prevBtn = document.createElement("a");
                             prevBtn.className = "prev";
@@ -297,7 +264,6 @@ function initMap() {
                             prevBtn.innerHTML = "&#10094;";
                             prevBtn.addEventListener("click", () => plusSlides(-1));
 
-                            // Next butonu
                             const nextBtn = document.createElement("a");
                             nextBtn.className = "next";
                             nextBtn.style.color = "black";
@@ -306,40 +272,33 @@ function initMap() {
 
                             slideContainer.appendChild(prevBtn);
                             slideContainer.appendChild(nextBtn);
-
                         }
-
 
                         if (document.querySelectorAll(".mySlides").length > 0) {
                             currentSlideShow(1);
                         }
 
-                        const mapDiv = document.querySelector(".map-div")
                         window.scrollTo({
-                            // the distance between the top and map + 100px
                             top: slideContainer.offsetTop + (slideContainer.offsetWidth * 0.002),
                             behavior: "smooth"
                         });
-
-
-                    });
+                            
+                        })
                 }
             );
-
-
         };
-
     })
-
-
 }
+
 function clearMarkers() {
-    marker.forEach(marker => marker.setMap(null));
-    markers = [];
+    markerList.forEach(marker => marker.setMap(null));
+    markerList.length = 0;
 }
 function clearResults() {
     const slideContainer = document.querySelector(".slide-container");
-    slideContainer.innerHTML = "";
+    if (slideContainer) {
+        slideContainer.innerHTML = "";
+    }
 }
 
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
@@ -364,12 +323,12 @@ function createMarker(place, currPos) {
     const placePos = place.geometry.location
     const distanceBetween = getDistance(currPos, placePos)
     const mapsLink = `https://www.google.com/maps/search/?api=1&query=${placePos.lat()},${placePos.lng()}`;
-    
+
     google.maps.event.addListener(marker, "click", () => {
         infoWindowPlace.setContent(`${place.name || ""} <br> Distance: ${(distanceBetween / 1000).toFixed(3)} km <br> <a href="${mapsLink}" target="_blank">See on Maps</a>`);
         infoWindowPlace.open(map, marker);
     });
-    return [place, distanceBetween, infoWindowPlace, marker]
+    return [place, distanceBetween, infoWindowPlace, marker, mapsLink]
 }
 
 function getDistance(currPos, placePos) {
@@ -379,25 +338,22 @@ function getDistance(currPos, placePos) {
     );
     return distanceInMeters;
 }
-function getClosestPlace(distanceList) {
-    return Math.min(...distanceList)
-}
+
 function searchDistanceFunc() {
     document.getElementById("dropdown-id").classList.toggle("show");
 }
+
 function getValue() {
     const val = document.getElementById("distances").value;
     return val;
 }
+
 let slideIndex = 1;
 showSlides(slideIndex);
 
-// Next/previous controls
 function plusSlides(n) {
     showSlides(slideIndex += n);
 }
-
-// Thumbnail image controls
 function currentSlideShow(n) {
     showSlides(slideIndex = n);
 }
