@@ -361,6 +361,7 @@ function currentSlideShow(n) {
 function showSlides(n) {
     let i;
     let slides = document.getElementsByClassName("mySlides");
+    if (slides.length === 0) return;
     //turns first slide when go further from last slide
     if (n > slides.length) { slideIndex = 1 }
     // goes last slide when go previous page from 1st page
